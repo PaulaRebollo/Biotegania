@@ -1,0 +1,120 @@
+ColumnName;VariableName;Description
+Ia;otros_anim;¿Además de los cerdos, hay otros animales de producción o mascotas presentes en su granja?
+Ib;otros;¿Qué otros animales de granja están presentes en su explotación?
+II;n_cerd;¿Cuántas cerdas tiene en su granja?
+III;n_lech;¿Cuántos lechones destetados tiene en su granja?
+IV;n_eng;¿Cuántos cerdos de engorde tiene en su granja?
+V;n_ver;¿Cuántos verracos tiene en su granja?
+VI;n_exper;¿Cuántos años de experiencia en el sector porcino tiene el responsable?
+VII;n_emple;¿Cuántos empleados hay en la granja?
+VIII;edif_vie;¿Qué edad tiene (en años) el edificio más antiguo de la granja en el que se alojan animales?
+IX;n_edif_nue;¿Qué edad (en años) tiene el edificio más nuevo de la granja en el que se alojan animales?
+X1;comp_rep;¿Se compran cerdos reproductores?
+X2;prov_rep;¿Durante los últimos dos años, provienen sus cerdos reproductores del mismo proveedor o de varios?
+X3;sani_rep;Cuando se compran cerdos reproductores de otra explotación, ¿se piden pruebas para garantizar que el estatus y el manejo sanitario de la explotación de origen son iguales o superiores a los de su granja?
+X4;vehi_rep;¿Se aplican criterios higiénicos (por ejemplo, limpieza y desinfección del vehículo) en el vehículo de transporte que lleva a los cerdos reproductores a la granja?
+X5;frec_rep;De manera anual,¿con qué frecuencia se entregan cerdos reproductores a su granja?
+X6;X40a_rep;¿Están todos los cerdos reproductores recién llegados en una sala de cuarentena separados del resto del rebaño?
+X7;TDTF_rep;¿Se practica en la sala de cuarentena una gestión estricta de todo dentro/todo fuera?
+X8;dias_40a_rep;¿Cuál es la duración mínima (en días) del período de cuarentena?
+X9;vest_40a_rep;¿Hay una barrera/vestuario de bioseguridad separado para la sala de cuarentena?
+X10;comp_lec;¿Se compran lechones?
+X11;orig_lec;¿Durante los últimos dos años, provienen sus lechones del mismo proveedor o de varios?
+X12;sani_lec;Cuando se compran lechones de otra explotación, ¿se piden analíticas para garantizar que el estado y la gestión sanitaria de la explotación de origen son iguales o superiores a los de su granja?
+X13;vehi_lec;¿Se aplican criterios higiénicos (por ejemplo, limpieza y desinfección del vehículo) en el vehículo de transporte que lleva a los lechones a la granja?
+X14;frec_lec;Anualmente, ¿con qué frecuencia se entregan lechones a su granja?
+X15;comp_sem;¿Se compra semen?
+X16;sani_sem;Cada vez que se compra semen en una granja/centro de inseminación, ¿se piden analíticas para asegurar que el estatus y la gestión sanitaria de la granja/centro de inseminación de origen son iguales o superiores a los de su propia granja?
+X17;eng_mat;¿Los cerdos de engorde son transportados de su granja al matadero?
+X18;vehi_eng_vac;¿El vehículo de transporte de los cerdos de engorde está vacío a la llegada a la granja?
+X19;lyd_vehi_eng;¿Se limpia y desinfecta el vehículo de transporte de los cerdos de engorde antes de entrar en la granja?
+X20;trans_cer;¿Se transportan las cerdas de su granja a otras granjas o al matadero?
+X21;vehi_cer_vac;¿El vehículo de transporte de las cerdas está vacío a su llegada a la granja?
+X22;lyd_vehi_cer;¿Se limpia y desinfecta el vehículo de transporte de las cerdas antes de entrar en la granja?
+X23;trans_lec;¿Se transportan los lechones de su granja a otras granjas?
+X24;trans_lec_vac;¿El vehículo de transporte de los lechones está vacío a la llegada a la granja?
+X25;lyd_vehi_lec;¿Se limpia y desinfecta el vehículo de transporte de lechones a su llegada a la granja?
+X26;nav_cond;¿Tiene el conductor acceso a las naves al cargar los animales (cerdos de engorde, cerdas o lechones)?
+X27;ropa_cond;¿Recibe y usa el conductor ropa y zapatos específicos de la granja?
+X28;carga_sep;¿Se cargan los cerdos desde una zona de carga separada (muelle de carga) o directamente desde la nave /pasillo central?
+X29;regreso_postveh;¿Es posible que los cerdos regresen a las naves (por ejemplo, los animales caminando por su propio pie o que un trabajador los devuelva a la misma sala por algún motivo ) después de haber estado en el vehículo de transporte?
+X30;zs_purin;¿Se elimina el purín a través de la zona sucia?
+X31;mang_purin;¿Existen mangueras específicas de la granja para la eliminación del purín de las fosas de estiércol (es decir, hay mangueras que siempre permanezcan en la granja)?
+X32;separ_cad;¿Existe un espacio de almacenamiento de cadáveres, físicamente separado de las nave de los animales?
+X33;zs_cad;¿Este espacio de almacenamiento de cadáveres se encuentra en la zona sucia de la granja?
+X34;empr_cad;¿Puede la empresa de procesamiento recoger los cadáveres sin entrar en la zona limpia de la granja (par ejemplo: desde el camino público?
+X35;acceso_cad;Se almacenan los cadáveres de manera que no tengan acceso a ellos perros, gatos y/o animales salvajes?
+X36;lyd_cad;¿Se limpia y desinfecta este almacenamiento de cadáveres después de cadarecogida?
+X37;enfr_cad;¿Se enfría el almacenamiento de cadáveres?
+X38;manip_cad;¿Se toman medidas de protección para la manipulación de los cadáveres (por ejemplo: lavarse las manos o usar guantes?
+X39;proveed_silos;¿Puede la empresa de alimentación llenar los silos sin entrar en la zona limpia?
+X40;proveed_nav;¿El proveedor de alimentos tiene acceso a las naves?
+X41;piens_hig;¿El pienso procede de una empresa de alimentación en la que tiene que cumplir determinados requisitos higiénicos (por ejemplo, ausencia de salmonela, tratamiento térmico, etc.)?
+X42;agua_ent;¿Se controla cada año la calidad del agua potable en la entrada o en el depósito de almacenamiento mediante un análisis bacteriológico?
+X43;agua_sal;¿Se controla cada año la calidad del agua potable en las salidas principales (es decir, en los bebederos donde beben los cerdos) mediante un análisis bacteriológico?
+X44;zn_des_mat;¿Existe una zonaespecífica de desinfección de materiales para meterlos en la granja (por ejemplo, una cabina de rayosUV para materiales del exterior)?
+X45;med_mat;¿Se toman medidas específicas para la introducción de material (por ejemplo, limpieza y desinfección o período de cuarentena en un lugar específico)?
+X46;vis_inf;¿Están obligados los visitantes a informar de su presencia antes de entrar en la granja (por ejemplo, a través del registro de visitantes)?
+X47;vis_12h;¿Se requiere un período sin visitas a otras granjas o instalaciones relacionadas con porcino (más de 12 horas) para todos los visitantes antes de que se les permita entrar en la granja?
+X48;vest_vis;¿Existe un vestuario de bioseguridad disponible y siempre es utilizaoa por los visitantes cuando entran a la granja?
+X49;nav_vest;¿Son todos las naves accesibles para los visitantes solo cuando hayan pasado por un vestuario con medida de bioseguridad?
+X50;zs_zl_vest;¿Existe una separación estricta entre la zona limpia y la sucia del vestuario de bioseguridad?
+X51;ropa_vis;¿Los visitantes tienen que usar ropa específica de la granja?
+X52;calz_vis;¿Los visitantes tienen que llevar calzado específico de la granja?
+X53;manos;¿Los visitantes y los trabajadores de la granja tienen que lavarse y desinfectarse las manos antes de entrar a las naves?
+X54;hig_trab;¿Todos los trabajadores de la granja siempre llevan a cabo estas medidas higiénicas?
+X55;alim;¿Se considera que las alimañas (es decir, ratas, ratones, etc.) son un problema en la granja?
+X56;ext_pav;¿Está el exterior de la granja pavimentado y limpio (por ejemplo, sin vegetación, malas hierbas, basura, escombros, etc.)?
+X57;roed;¿Existe un programa de control de roedores en la granja?
+X58;masc;¿Las mascotas tienen acceso a las naves (incluyendo donde esta el alimento y material de cama)?
+X59;aves;¿Tienen acceso las aves a las naves?
+X60;rejillas;¿Se colocan rejillas en los conductos de aire?
+X61;dens_granj;¿Está la granja situada en una zona con una alta densidad de cerdos o en una zona de baja densidad?
+X62;X500m;¿Existen otras explotaciones de porcino en un radio de 500 metros de su granja?
+X63;est_500m;¿Se está esparciendo estiércol de otras explotaciones en prados en un radio de 500 metros alrededor de su granja?
+X64;carr_100m;¿Los vehículos de transporte que transportan animales de otras granjas a menudo (es decir, como mínimo una vez al día) pasan por una carretera a menos de 100 metros de su granja (por ejemplo, debido a la existencia de un matadero en las inmediaciones...
+X65;jab_10km;¿Se han detectado jabalíes en un radio de 10 kilómetros alrededor de su explotación?
+X66;cerc;¿La granja está rodeada de cerca, alambradas, ....?
+X67;plan_vac;¿El ganadero siempre utiliza y sigue un plan de vacunación predefinido y un protocolo demanejo (aditivos, pre o probióticos, etc.)?
+X68;eval_sani;¿Se realiza una evaluación periódica (es decir, al menos una vez al año) de la situación sanitaria de la granja (por ejemplo, serología, hallazgos de matadero, etc.)?
+X69;aisl_enf;¿Se aíslan los cerdos retrasadosy/o enfermos de los sanos (en corrales o enfermerías separados físicamente o se eutanasian)?
+X70;manip_enf;¿Se manipulan/visitan los cerdos enfermos después de los sanos?
+X71;pres_cer;¿Hay cerdas en la granja?
+X72;limp_cer;¿Las cerdas se lavan antes de ser trasladadas a la sala de partos?
+X73;adop_cer;¿Se realizan adopciones de lechones entre cerdas?
+X74;n_adop;¿Se realizan una o varias adopciones por lechón?
+X75;adop_4d;¿Las adopciones se hacen cuando los lechones tienen más de 4 días de vida?
+X76;manip_lec;¿Cuántas veces se manipulan los lechones (por ejemplo, vacunación, castración, corte de colmillos ,...) entre el nacimiento y el destete?
+X77;lyd_mat;¿Se limpian y desinfectan regularmente entre grupos de lechones los materiales/herramientas de trabajo (por ejemplo, cuchillas de castración, agujas de inyección de hierro, cortacolas para lechones, etc.)?
+X78;cuchillas;¿Trabaja con dos cuchillas y un recipiente con desinfectante para castrar a los lechones?
+X79;lech_trans;¿Hay lechoneras/transición en la granja?
+X80;tdtf_lech;¿Se practica un todo dentro/todo fuera (TD/TF) estricto en cada uno de los compartimentos de las lechoneras?
+X81;mez_lech;¿Se mezclan a veces los cerdos más viejos con los más jóvenes?
+X82;dens_lech;¿Cuál es la máxima densidad de población de un corral en las lechoneras?
+X83;lech_sep;¿Está la nave de lechoneras o transiciónseparada físicamente de la gestación (es decir, sin contacto directo a través de una puerta contigua, preferiblemente en un establo separado)?
+X84;vest_lech;¿Existe un vestuario de bioseguridad específico para las lechoneras o transición?
+X85;pres_ceb;¿Hay cerdos de cebo en la granja?
+X86;tdtf_sala_ceb;¿Se practica un todo dentro/todo fuera (TD/TF) estricto en todas las salas de la nave de cebo?
+X87;tdtf_corral_ceb;¿Se practica un todo dentro/todo fuera (TD/TF) estricto en cada corral de cada sala de la nave de cebo?
+X88;sep_ceb;¿Los diferentes grupos de edad están estrictamente separados en salas diferentes (es decir, con una separación física)?
+X89;mez_ceb;¿Los cerdos de cebo más viejos se mezclan a veces con cerdos más jóvenes?
+X90;dens_ceb;¿Cuál es la densidad máxima de ocupación de un corral en el cebo?
+X91;ropa_fase;¿Se dispone de ropa y calzado específico para cada fase productiva y se utiliza?
+X92;lyd_fase;¿Se lavan y/o desinfectan las manos entre las diferentes naves o fases productivas?
+X93;ped_fase;¿Se usan pediluvios y/o lavabotas entre diferentes naves o fases productivas o se cambian las botas?
+X94;rut_edad;¿La rutina de trabajo y manejo va desde los cerdos más jóvenes hasta los más mayores?
+X95;mat_orden;¿El material necesario para un lote o grupo de animales se coloca de acuerdo con el orden en que se lleva a cabo el trabajo?
+X96;prot_lyd;¿Existe un protocolo para la limpieza y desinfección del material (como escobas, palas) después de su uso y se cumple siempre este protocolo?
+X97;mat_id;¿Se dispone de material diferente y fácilmente identificable (por ejemplo, marcado con diferentes colores) para cada lote o grupo de edad?
+X98;lyd_tab;¿Se limpian y desinfectan regularmente (es decir, después de cada uso o, al menos, después de cada ciclo de producción durante el vacío sanitario) los tableros para arrear?
+X99;mat_comp;¿Hay algún material que pueda tener contacto con los animales o que entre dentro de la granja, que se comparta con otras granjas?
+X100;jer_grup;¿Hay disponibles jeringas específicas para cada grupo de edad o para cada lote?
+X101;aguj_grup;¿Existen agujas para inyección específicas para cada grupo de edad o para cada lote?
+X102;n_cerd_aguj;¿Después de cuántos cerdos se cambia la aguja?
+X103;lyd_etapa;¿Se respetan las diferentes etapas del proceso de limpieza y desinfección, y se dispone de tiempo suficiente (según las especificaciones del producto utilizado) para cada etapa?
+X104;efic_lyd;¿Se comprueba la eficacia del protocolo de limpieza y desinfección, por ejemplo, analizando con una placa de contacto o esponja abrasiva?
+X105;lyd_salas;¿Se limpian y desinfectan los naves/salas después de cada ciclo de producción?
+X106;vac_largo;¿El vacío sanitario es lo suficientemente largo, es decir, hay bastante tiempo para secar y ajustar la temperatura antes de que los cerdos entren en la sala?
+X107;lyd_pasillos;¿Se limpian y desinfectan los pasillos y la zona de carga (muelle de carga) después del traslado de los cerdos?
+X108;ped_entr;¿Hay pediluvios y/o lavabotas en la entrada de la granja y se utilizan?
+X109;renov_ped;¿Se renueva inmediatamente el desinfectante de los pediluvios y/o lavabotas cuando se ve que están contaminados?

@@ -1,0 +1,1728 @@
+---
+title: "Descriptive_statistics_Multiplicadoras"
+author: "Paula Rebollo Igual"
+date: "2025-03-19"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# REPORT MULTIPLICADORAS
+
+```{r}
+library(readxl)
+DATA <- read.csv("data_allvars_03_03_2025.csv")
+
+dictionary1<- read.csv("dictionary1.csv", sep=";", header=TRUE, stringsAsFactors=FALSE, check.names=FALSE)
+
+
+```
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(summarytools)
+library(knitr)
+```
+
+# INTRODUCCIÓN
+
+La encuesta Biocheck se pasó durante los meses de mayo a diciembre del 2024 a 207 granjas de cerdos de la comunidad de Aragón. Las preguntas incluyen diferentes medidas de Bioseguridad Interna y Externa. La bioseguridad externa son todas aquellas medidas para evitar la entrada de un patógeno en una explotación. La Bioseguridad Interna hace relación a las medidas que permiten evitar la dispersión del/los patógenos dentro de la granja, posterior a su introducción. La plataforma de la encuesta (Biocheck) también calcula puntuaciones correpondientes a los diferentes apartados de bioseguridad.
+
+Las granjas se diferenciaron en diferentes tipos productivos: Multiplicadoras, Crías de reproductoras, Maternidades, Transiciones y Cebos. Para cada grupo productivo se describieron las distribuciones de las respuestas de cada apartado de bioseguridad.
+
+# MÉTODOS
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyr)
+library(readr)
+library(dplyr)
+library(dplyr)
+library(ggplot2)
+
+packages <- c("dplyr", "VennDiagram", "grid")
+install.packages(setdiff(packages, rownames(installed.packages())))
+
+library(RColorBrewer)
+library(tidyverse)
+library(hrbrthemes)
+library(tm)
+library(proustr)
+library(VennDiagram)
+
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+#BARPLOT DISTRUBIÓN GRANJAS
+
+# Define labels
+labels <- c("PQ" = "Maternidades", "MU" = "Multiplicadoras", "CR" = "Recrías", 
+            "IW" = "Transición", "CB" = "Cebo")
+
+# Define colors
+colors <- c("MU" = "red", "PQ" = "orange", "CR" = "yellow", 
+            "IW" = "green", "CB" = "blue")
+
+# Create bar plot
+ggplot(DATA, aes(x = Ind_type, fill = Ind_type)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3.5) +
+  scale_x_discrete(labels = labels) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribución de Tipos de Granjas", 
+       x = "Tipo de granja", 
+       y = "número") +
+  theme_minimal()
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+#Barplot granjas de madres
+
+# Filtrar solo las granjas MU y PQ
+DATA_PQMU <- subset(DATA, Ind_type %in% c("MU", "PQ"))
+
+# Definir etiquetas
+labels <- c("PQ" = "Maternidades", "MU" = "Multiplicadoras")
+
+# Definir colores
+colors <- c("MU" = "red", "PQ" = "orange")
+
+# Crear el barplot con etiquetas
+ggplot(DATA_PQMU, aes(x = Ind_type, fill = Ind_type)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, size = 3.6) +
+  scale_x_discrete(labels = labels) +
+  scale_fill_manual(values = colors) +
+  labs(title = "Distribución de Granjas de Madres" ,
+       x = "Tipo de Granja",
+       y = "Cantidad") +
+  theme_minimal()
+
+```
+
+## Multiplicadoras
+
+#### Scores bioseguridad
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+#Scores
+
+# Cargar librerías necesarias
+library(dplyr)
+
+# Filtrar solo las granjas con Ind_type == "MU"
+DATA_MU <- subset(DATA, Ind_type == "MU")
+
+# Descripción básica de las variables
+descriptive_B.Ext <- summary(DATA_MU$B.Ext)
+descriptive_B.Int <- summary(DATA_MU$B.Int)
+
+# Desviación estándar
+sd_B.Ext <- sd(DATA_MU$B.Ext, na.rm = TRUE)
+sd_B.Int <- sd(DATA_MU$B.Int, na.rm = TRUE)
+
+# Intervalo de confianza al 95%
+resultadoExt <- t.test(DATA_MU$B.Ext, conf.level = 0.95)
+resultadoInt <- t.test(DATA_MU$B.Int, conf.level = 0.95)
+
+# Crear la tabla de resultados
+resultados <- data.frame(
+  "Descriptive Statistics" = c("Min", "1st Quartile", "Median", "Mean", "3rd Quartile", "Max"),
+  "B.Ext" = c(descriptive_B.Ext["Min"], descriptive_B.Ext["1st Qu."], descriptive_B.Ext["Median"], 
+              descriptive_B.Ext["Mean"], descriptive_B.Ext["3rd Qu."], descriptive_B.Ext["Max"]),
+  "B.Int" = c(descriptive_B.Int["Min"], descriptive_B.Int["1st Qu."], descriptive_B.Int["Median"], 
+              descriptive_B.Int["Mean"], descriptive_B.Int["3rd Qu."], descriptive_B.Int["Max"]),
+  "Std Dev" = rep(round(sd_B.Ext, 2), 6),  # Desviación estándar
+  "95% CI Lower (B.Ext)" = rep(resultadoExt$conf.int[1], 6),  # Límite inferior del intervalo para B.Ext
+  "95% CI Upper (B.Ext)" = rep(resultadoExt$conf.int[2], 6),  # Límite superior del intervalo para B.Ext
+  "95% CI Lower (B.Int)" = rep(resultadoInt$conf.int[1], 6),  # Límite inferior del intervalo para B.Int
+  "95% CI Upper (B.Int)" = rep(resultadoInt$conf.int[2], 6)   # Límite superior del intervalo para B.Int
+)
+
+# Mostrar la tabla
+print(resultados)
+
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+plot(DATA_MU$B.Ext, DATA_MU$B.Int, pch = 1, col = "blue", main = "B_Ext vs B_Int", cex=2) 
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear el boxplot primero
+boxplot(DATA_MU$B.Ext, 
+        col = "lightyellow",  # Color de las cajas
+        border = "black",   # Borde de las cajas
+        main = "Bioseguridad Externa (puntuación) Multiplicadoras", 
+        ylab = "B.Ext")
+
+# Agregar los puntos con jitter
+stripchart(DATA_MU$B.Ext, 
+           vertical = TRUE, 
+           method = "jitter",  # Dispersión aleatoria de los puntos
+           pch = 19,           # Tipo de punto (círculos rellenos)
+           col = "red",       # Color de los puntos
+           add = TRUE)         # Agregar los puntos al boxplot existente
+
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear subsets a partir de DATA
+DATA_MU <- subset(DATA, Ind_type == "MU")
+DATA_PQ <- subset(DATA, Ind_type == "PQ")
+DATA_CR <- subset(DATA, Ind_type == "CR")
+DATA_IW <- subset(DATA, Ind_type == "IW")
+DATA_CB <- subset(DATA, Ind_type == "CB")
+
+# Unir los datos en una lista para hacer el boxplot
+lista_datos <- list(
+  MU = DATA_MU$B.Ext,
+  PQ = DATA_PQ$B.Ext,
+  CR = DATA_CR$B.Ext,
+  IW = DATA_IW$B.Ext,
+  CB = DATA_CB$B.Ext
+)
+
+# Crear boxplot con todos los grupos
+boxplot(lista_datos, 
+        col = NA, 
+        border = "black",
+        main = "Comparación de B.Ext por Grupo",
+        xlab = "Grupo", 
+        ylab = "B.Ext")
+
+# Agregar puntos con jitter a cada grupo
+for (i in 1:length(lista_datos)) {
+  stripchart(lista_datos[[i]], 
+             method = "jitter", 
+             pch = 19, 
+             col = "red", 
+             add = TRUE, 
+             at = i,
+             cex = 1.5,      # Aumentar el tamaño de los puntos
+             jitter = 0.3)  # Colocar puntos sobre cada caja
+}
+
+```
+
+## A
+
+### 1. Compra de animales
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Load necessary libraries
+library(dplyr)
+
+# Filtrar solo las granjas con Ind_type = "MU"
+DATA_MU <- subset(DATA, Ind_type == "MU")
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X2 <- calc_freq(DATA_MU$X2, "X2")
+freq_X3 <- calc_freq(DATA_MU$X3, "X3")
+freq_X4 <- calc_freq(DATA_MU$X4, "X4")
+freq_X5 <- calc_freq(DATA_MU$X5, "X5")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X2, freq_X3, freq_X4, freq_X5)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_with_description <- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_with_description)
+
+```
+
+El vehículo que transporta a las cerdas llega limpio y desinfectado.La mayoría de las multiplicadoras siempre compran cerdas al mismo proveedor, que ofrece garantías sanitarias. Las frecuencias de entrega de los animales son, en la mayor parte de casos, entre 3 y 6 veces al año.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Load necessary libraries
+library(dplyr)
+
+# Filtrar solo las granjas con Ind_type = "MU"
+DATA_MU <- subset(DATA, Ind_type == "MU")
+
+# Crear tabla de contingencia para X2 y X5
+contingency_table <- table(DATA_MU$X2, DATA_MU$X5)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Mostrar la tabla con las categorías de respuesta combinadas
+colnames(contingency_table_with_percentages) <- colnames(contingency_table)
+rownames(contingency_table_with_percentages) <- rownames(contingency_table)
+
+# Convertir la matriz a un data frame para una mejor visualización
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mostrar la tabla
+kable(contingency_df)
+
+```
+
+Las granjas que tienen una menor frecuencia de entrega de cerdas (2 o menos veces al año) son las que compran a diferentes proveedores.
+
+### 2. Cuarentena
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Load necessary libraries
+library(dplyr)
+
+# Filtrar solo las granjas con Ind_type = "MU"
+DATA_MU <- subset(DATA, Ind_type == "MU")
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X6 <- calc_freq(DATA_MU$X6, "X6")
+freq_X7 <- calc_freq(DATA_MU$X7, "X7")
+freq_X9 <- calc_freq(DATA_MU$X9, "X9")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X6, freq_X7, freq_X9)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_x6x9 <- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_x6x9)
+
+```
+
+Todas las Multiplicadoras tienen cuarentena. Y en todas se hace Todo-dentro/Todo-fuera. Hay 2 granjas que no tienen vestuario para la cuarentena.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+#Duración cuarentena
+
+# Load necessary libraries
+library(dplyr)
+
+# Filtrar solo las granjas con Ind_type = "MU"
+DATA_MU <- subset(DATA, Ind_type == "MU")
+
+# Descriptiva básica para la pregunta numérica X8
+descriptive_X8 <- summary(DATA_MU$X8)
+
+# Desviación estándar
+sd_X8 <- sd(DATA_MU$X8, na.rm = TRUE)
+
+# Mostrar la descriptiva básica
+descriptive_X8
+cat("Desviación estándar: ", round(sd_X8, 2))
+
+```
+
+La media de días de cuarentena son 24 días.
+
+### 3. Semen
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X15<- calc_freq(DATA_PQ$X15, "X15")
+freq_X16<- calc_freq(DATA_PQ$X16, "X16")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X15,freq_X16)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_x15x16 <- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_x15x16)
+
+```
+
+En todas las granjas se compra semen previamente analizado.
+
+### 4. Transporte de animales
+
+#### Transporte de cerdas a matadero
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X20<- calc_freq(DATA_MU$X20, "X20")
+freq_X21<- calc_freq(DATA_MU$X24, "X21")
+freq_X22<- calc_freq(DATA_MU$X22, "X22")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X20,freq_X21, freq_X22)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_x20x22<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_x20x22)
+
+```
+
+El vehículo siempre llega vacío, y antes de entrar a la granja se limpia y se desinfecta.
+
+#### Transporte (recogida) de lechones
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X23<- calc_freq(DATA_MU$X23, "X23")
+freq_X24<- calc_freq(DATA_MU$X24, "X24")
+freq_X25<- calc_freq(DATA_MU$X25, "X25")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X23,freq_X24, freq_X25)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X23X25<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X23X25)
+
+```
+
+Todas las granjas transportan lechones a otras granjas (recrías o transiciones). El transporte siempre va vacío y siempre se limpia antes de entrar a la granja.
+
+#### Carga/descarga de animales
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X26<- calc_freq(DATA_MU$X26, "X26")
+freq_X27<- calc_freq(DATA_MU$X27, "X27")
+freq_X28<- calc_freq(DATA_MU$X28, "X28")
+freq_X29<- calc_freq(DATA_MU$X29, "X29")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X26,freq_X27, freq_X28, freq_X29)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X26X29<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X26X29)
+
+```
+
+En una granja el conductor tiene acceso a la nave pero le dan ropa y calzado específico. En todas las granjas hay una zona de carga separada.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X26y X27
+contingency_table <- table(DATA_MU$X26, DATA_MU$X27)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Mostrar la tabla con las categorías de respuesta combinadas
+colnames(contingency_table_with_percentages) <- colnames(contingency_table)
+rownames(contingency_table_with_percentages) <- rownames(contingency_table)
+
+# Convertir la matriz a un data frame para una mejor visualización
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mostrar la tabla
+kable(contingency_df)
+
+```
+
+La única granja donde se permite el acceso del conductor a las naves es la que contesta que siempre hay ropa y calzado específico para el conductor.
+
+#### Otros
+
+##### A. Purines
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X30y X31
+contingency_table <- table(DATA_MU$X30, DATA_MU$X31)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Mostrar la tabla con las categorías de respuesta combinadas
+colnames(contingency_table_with_percentages) <- colnames(contingency_table)
+rownames(contingency_table_with_percentages) <- rownames(contingency_table)
+
+# Convertir la matriz a un data frame para una mejor visualización
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mostrar la tabla
+kable(contingency_df)
+
+```
+
+En todas las granjas el purín se elimina a través de la zona sucia. En cuatro de ellas no hay una manguera específica para el purín.
+
+##### B. Cadáveres
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X32<- calc_freq(DATA_MU$X32, "X32")
+freq_X33<- calc_freq(DATA_MU$X33, "X33")
+freq_X34<- calc_freq(DATA_MU$X34, "X34")
+freq_X35<- calc_freq(DATA_MU$X35, "X35")
+freq_X36<- calc_freq(DATA_MU$X36, "X36")
+freq_X38<- calc_freq(DATA_MU$X38, "X38")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X32, freq_X33,freq_X34, freq_X35, freq_X36, freq_X38)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X32X38<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X32X38)
+
+```
+
+La mitad de las granjas no tiene el almacenamiento de cadáveres en la zona sucia. Los cadáveres se almacenan de manera que la empresa de recogida no tiene que entrar a la zona limpia. En una granja los perros, gatos o animales salvajes tienen acceso a los cadáveres. En la mayoría de granjas el almacenamiento de cadáveres se limpia y se desinfecta después de cada recogida. En una granja no se usan guantes para manupular cadáveres.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X35y X36
+contingency_table <- table(DATA_MU$X35,DATA_MU$X36)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X35 y X36 desde el diccionario
+X35_description <- dictionary1$Description[dictionary1$ColumnName == "X35"]
+X36_description <- dictionary1$Description[dictionary1$ColumnName == "X36"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X35: ", X35_description, "\n")
+cat("Pregunta X36: ", X36_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X36
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X35
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+La misma granja que permite acceso a animales salvajes, perros y gatos no limpia y desinfecta el almacenamiento de cadáveres.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X38y X36
+contingency_table <- table(DATA_MU$X38,DATA_MU$X36)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X35 y X36 desde el diccionario
+X38_description <- dictionary1$Description[dictionary1$ColumnName == "X38"]
+X36_description <- dictionary1$Description[dictionary1$ColumnName == "X36"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X38: ", X38_description, "\n")
+cat("Pregunta X36: ", X36_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X38
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X36
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+La granja que no limpia y desinfecta el almacenamiento de cadáveres después de cada recogida, siempre manipula los cadáveres con guantes o medidas similares. Las otras granjas sólo algunas veces manipulan los cadáveres con guantes.
+
+##### C. Pienso
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X39y X40
+contingency_table <- table(DATA_MU$X39,DATA_MU$X40)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X35 y X36 desde el diccionario
+X39_description <- dictionary1$Description[dictionary1$ColumnName == "X39"]
+X40_description <- dictionary1$Description[dictionary1$ColumnName == "X40"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X39: ", X39_description, "\n")
+cat("Pregunta X40: ", X40_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X39
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X40
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+En todas las granjas la empresa de alimentación puede llenar los silos sin entrar a la zona limpia. En una granja el proveedor de alimentos tiene acceso a las naves.
+
+### 5. Alimentos y agua
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X41<- calc_freq(DATA_MU$X41, "X41")
+freq_X42<- calc_freq(DATA_MU$X42, "X42")
+freq_X43<- calc_freq(DATA_MU$X35, "X43")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X41,freq_X42, freq_X43)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X41X43<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X41X43)
+
+```
+
+El pienso siempre cumple los criterios higiénicos. En la mayoría de granjas se controla la calidad del agua tanto en la entrada como la salida.
+
+### 6. Vistiantes y trabajadores
+
+#### A. Materiales
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X44 y 45
+contingency_table <- table(DATA_MU$X44,DATA_MU$X45)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X44 y X45 desde el diccionario
+X44_description <- dictionary1$Description[dictionary1$ColumnName == "X44"]
+X45_description <- dictionary1$Description[dictionary1$ColumnName == "X45"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X44:", X44_description, "\n")
+cat("Pregunta X45: ", X45_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X44
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X45
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+En la mitad de las granjas no hay una zona específica de introducción de material. Todas las granjas aplican medidas específicas cuando lo introducen.
+
+#### B. Política de visitas
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X46<- calc_freq(DATA_MU$X41, "X46")
+freq_X47<- calc_freq(DATA_MU$X42, "X47")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X46,freq_X47)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X46X47<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X46X47)
+
+```
+
+En todas las granjas es obligada la información de la presencia de visitas. Hay un período sin visitas a otras granjas obligatorio también en todas ellas.
+
+#### C. Vestuario
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X48<- calc_freq(DATA_MU$X41, "X48")
+freq_X49<- calc_freq(DATA_MU$X42, "X49")
+freq_X50<- calc_freq(DATA_MU$X42, "X50")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X48,freq_X49, freq_X50)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X48X50<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X48X50)
+
+```
+
+Todas las granjas tienen vestuario con separación zona sucia/zona limpia. Las naves sólo son accesibles a través del vestuario.
+
+#### D. Ropa y botas
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X51<- calc_freq(DATA_MU$X51, "X51")
+freq_X52<- calc_freq(DATA_MU$X52, "X52")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X51,freq_X52)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X51X52<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X51X52)
+
+```
+
+En todas las granjas el calzado y la ropa específicas de la granja son obligatorios para las visitas.
+
+#### E. Lavado de manos
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X53<- calc_freq(DATA_MU$X53, "X53")
+freq_X54<- calc_freq(DATA_MU$X54, "X54")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X53,freq_X54)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X53X54<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X53X54)
+
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X53y 54
+contingency_table <- table(DATA_MU$X53,DATA_MU$X54)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X53 y X54 desde el diccionario
+X53_description <- dictionary1$Description[dictionary1$ColumnName == "X53"]
+X54_description <- dictionary1$Description[dictionary1$ColumnName == "X54"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X53:", X53_description, "\n")
+cat("Pregunta X54: ", X54_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X53
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X54
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+Sólamente en dos granjas los trabajadores y visitantes tienen que lavarse las manos antes de entrar a las naves y siempre cumplen éstas medidas. En dos granjas no es obligatorio el lavado de manos. En las dos granjas restantes sí es obligatorio pero no siempre no hacen.
+
+### 7. Roedores y aves
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X55<- calc_freq(DATA_MU$X55, "X55")
+freq_X57<- calc_freq(DATA_MU$X57, "X57")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X55,freq_X57)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X55X57<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X55X57)
+
+```
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X55y 57
+contingency_table <- table(DATA_MU$X55,DATA_MU$X57)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X53 y X54 desde el diccionario
+X55_description <- dictionary1$Description[dictionary1$ColumnName == "X55"]
+X57_description <- dictionary1$Description[dictionary1$ColumnName == "X57"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X55:", X55_description, "\n")
+cat("Pregunta X57: ", X57_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X55
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X57
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+Hay dos granjas, que a pesar de tener un programa de control de roedores y aves, dice tener problemas de alimañas.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X58<- calc_freq(DATA_MU$X58, "X58")
+freq_X59<- calc_freq(DATA_MU$X59, "X59")
+freq_X60<- calc_freq(DATA_MU$X60, "X60")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X58,freq_X59, freq_X60)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X58X60<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X58X60)
+
+```
+
+Las aves tienen acceso a las naves en la mitad de las granjas.
+
+### 8. Localitzación de la granja
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X61<- calc_freq(DATA_MU$X61, "X61")
+freq_X62<- calc_freq(DATA_MU$X62, "X62")
+freq_X63<- calc_freq(DATA_MU$X63, "X63")
+freq_X64<- calc_freq(DATA_MU$X64, "X64")
+freq_X65<- calc_freq(DATA_MU$X65, "X65")
+freq_X66<- calc_freq(DATA_MU$X66, "X66")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X61,freq_X62, freq_X63, freq_X64, freq_X65, freq_X66)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X61X66<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X61X66)
+
+```
+
+Una de las granjas se encuentra en una zona de alta densidad de cerdos (\>300 cerdos/kilómetro cuadrado). 4 Granjas han detectado jabalíes 10 km alrededor de la explotación.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X65y 66
+contingency_table <- table(DATA_MU$X65,DATA_MU$X66)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X65 y X66 desde el diccionario
+X65_description <- dictionary1$Description[dictionary1$ColumnName == "X65"]
+X66_description <- dictionary1$Description[dictionary1$ColumnName == "X66"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X65:", X65_description, "\n")
+cat("Pregunta X66: ", X66_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X65
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X66
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+
+```
+
+Todas las granjas que detectaron jabalíes en un radio de 10km alrededor de la granja tienen cercado perimetral.
+
+### 9. Manejo sanitario
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X67<- calc_freq(DATA_MU$X67, "X67")
+freq_X68<- calc_freq(DATA_MU$X68, "X68")
+freq_X69<- calc_freq(DATA_MU$X69, "X69")
+freq_X70<- calc_freq(DATA_MU$X70, "X70")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X67,freq_X68, freq_X69, freq_X70)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X67X70<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X67X70)
+
+```
+
+En dos granjas los enfermos sólo se aíslan algunas veces. La mitad de la granja no visita/manipula a los enfermos después de los sanos.
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Crear tabla de contingencia para X69y 70
+contingency_table <- table(DATA_MU$X69,DATA_MU$X70)
+
+# Calcular los porcentajes
+contingency_percentage <- prop.table(contingency_table) * 100
+
+# Crear una nueva tabla combinando frecuencias y porcentajes
+contingency_table_with_percentages <- matrix(nrow = nrow(contingency_table), ncol = ncol(contingency_table))
+
+for (i in 1:nrow(contingency_table)) {
+  for (j in 1:ncol(contingency_table)) {
+    contingency_table_with_percentages[i, j] <- paste(contingency_table[i, j], "(", round(contingency_percentage[i, j], 2), "%)", sep = "")
+  }
+}
+
+# Obtener las descripciones de las preguntas X69 y X70 desde el diccionario
+X69_description <- dictionary1$Description[dictionary1$ColumnName == "X69"]
+X70_description <- dictionary1$Description[dictionary1$ColumnName == "X70"]
+
+# Mostrar las descripciones de las preguntas antes de la tabla de contingencia
+cat("Pregunta X69:", X69_description, "\n")
+cat("Pregunta X70: ", X70_description, "\n")
+
+# Convertir la tabla de contingencia con porcentajes en un dataframe
+contingency_df <- as.data.frame(contingency_table_with_percentages)
+
+# Mantener los nombres originales de las respuestas (sin modificación)
+colnames(contingency_df) <- colnames(contingency_table)  # Respuestas de X69
+rownames(contingency_df) <- rownames(contingency_table)  # Respuestas de X70
+
+# Mostrar la tabla con las frecuencias y los porcentajes
+kable(contingency_df)
+```
+
+Hay dos granjas que no manipulan los enfermos después de los sanos y además no siempre aíslan a los enfermos.
+
+### 10. Lechones y parideras
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X72<- calc_freq(DATA_MU$X72, "X72")
+freq_X73<- calc_freq(DATA_MU$X73, "X73")
+freq_X74<- calc_freq(DATA_MU$X74, "X74")
+freq_X75<- calc_freq(DATA_MU$X75, "X75")
+freq_X76<- calc_freq(DATA_MU$X76, "X76")
+freq_X77<- calc_freq(DATA_MU$X77, "X77")
+freq_X78<- calc_freq(DATA_MU$X78, "X78")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X72,freq_X73, freq_X74, freq_X75, freq_X76, freq_X77,freq_X78)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X72X78<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X72X78)
+
+```
+
+Más del 80% de las multiplicadoras nunca lava a las cerdas antes de llevarlas a la sala de partos. 4/6 granjas hace más de una adopción por lechón. Hay 3 granjas que manipulan a los lechones 4 veces.
+
+De las que hacen más de una adopción por lechón:
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Instalar paquetes si no están instalados
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2", dependencies = TRUE)
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr", dependencies = TRUE)
+
+# Cargar paquetes
+library(ggplot2)
+library(dplyr)
+
+# Verificar si las columnas X74 y X75 existen en DATA_MU
+if (!all(c("X74", "X75") %in% colnames(DATA_MU))) {
+  stop("Error: Una o ambas columnas ('X74', 'X75') no se encuentran en el dataset.")
+}
+
+# Filtrar solo las granjas donde X74 == "Si"
+subset1 <- DATA_MU %>%
+  filter(as.character(X74) == "Varias_veces", !is.na(X75))  # Asegura que X74 es texto y X75 no es NA
+
+# Verificar si X75 sigue existiendo después de filtrar
+if (nrow(subset1) == 0) {
+  stop("Error: No hay datos en 'X75' después de filtrar por 'X74 == Varias_veces'.")
+}
+
+# Contar la frecuencia de cada categoría en X75
+freq_table <- subset1 %>%
+  group_by(X75) %>%
+  summarise(Frecuencia = n(), .groups = "drop")  # Evita advertencias de agrupación
+
+# Crear el barplot
+ggplot(freq_table, aes(x = X75, y = Frecuencia, fill = as.factor(X75))) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  labs(
+    title = "Adopciones después de los 4 días de vida cuando hay más de una adopción por lechón",
+    x = "Categorías en X75", 
+    y = "Frecuencia"
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill = "none")  # Oculta la leyenda si no es necesaria
+
+```
+
+2 granjas hacen adopciones depués de los 4 días de vida, además de hacer varias adopciones por lechón.
+
+### 11. Transición
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X80<- calc_freq(DATA_MU$X80, "X80")
+freq_X81<- calc_freq(DATA_MU$X81, "X81")
+freq_X82<- calc_freq(DATA_MU$X82, "X82")
+freq_X83<- calc_freq(DATA_MU$X83, "X83")
+freq_X84<- calc_freq(DATA_MU$X84, "X84")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X80, freq_X81, freq_X82, freq_X83, freq_X84)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X80X84<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X80X84)
+
+```
+
+En la mitad de las granjas no se hace Todo-dentro/Todo-fuera en la transición. En 4 granjas se mezclan animales de diferentes edades. En un caso la densidad de las lechoneras es de 5 lechones por metro cuadrado. Ninguna granja cuenta con vestuario para esta fase.
+
+### 12. Medidas entre salas y naves
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X91<- calc_freq(DATA_MU$X91, "X91")
+freq_X92<- calc_freq(DATA_MU$X92, "X92")
+freq_X93<- calc_freq(DATA_MU$X93, "X93")
+freq_X94<- calc_freq(DATA_MU$X94, "X94")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X91, freq_X92, freq_X93, freq_X94)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X91X95<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X91X95)
+
+```
+
+La mayoría de granjas tienen trabajadores que nunca se lavan las manos entre fases productivas. En una granja la rutina de trabajo no va desde los más jóvenes a los más mayores.
+
+### 13. Material: manejo, limpieza y desinfección
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X95<- calc_freq(DATA_MU$X95, "X95")
+freq_X96<- calc_freq(DATA_MU$X96, "X96")
+freq_X97<- calc_freq(DATA_MU$X97, "X97")
+freq_X98<- calc_freq(DATA_MU$X98, "X98")
+freq_X99<- calc_freq(DATA_MU$X98, "X99")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X95, freq_X96, freq_X97, freq_X98, freq_X99)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X95X99<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X95X99)
+
+```
+
+Ninguna granja tiene protocolos de limpieza y desinfección del material. El material en una granja no se coloca de acuerdo con el orden de trabajo. En la mitad de las granjas el material no es diferente e identificable para cada grupo de edad. Los tableros para arrear no se limpian y desinfectan después de cada ciclo de producción en 3 de las granjas. La mitad de las granjas comparte materiales con otras granjas.
+
+### 14. Jeringas y agujas
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X100<- calc_freq(DATA_MU$X100, "X100")
+freq_X102<- calc_freq(DATA_MU$X102, "X102")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X100, freq_X102)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X100X102<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X100X102)
+```
+
+La mayoría de granjas no tiene disponibles jeringas para cada grupo de edad. Los cambios de aguja son entre 14 y 45 animales.
+
+### 15. Limpieza y desinfección de las naves
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X103<- calc_freq(DATA_MU$X103, "X103")
+freq_X104<- calc_freq(DATA_MU$X104, "X104")
+freq_X106<- calc_freq(DATA_MU$X106, "X106")
+freq_X107<- calc_freq(DATA_MU$X98, "X107")
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X103, freq_X104, freq_X106, freq_X107)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X103X107<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X103X107)
+
+```
+
+Dos granjas no respetan las etapas de limpieza y desinfección y no disponen del tiempo suficiente. Sólo 1 granja comprueba la eficiacia del protocolo de limpieza y desinfección.
+
+1 granja no hace un vacío sanitario suficientemente largo.
+
+La mitad de las granjas no limpia y desinfecta el muelle de carga después del translado de cerdos.
+
+### 16. Pediluvios
+
+```{r,  echo = FALSE, warning = FALSE, message = FALSE}
+
+# Función para calcular frecuencias y porcentajes
+calc_freq <- function(variable, pregunta) {
+  freq <- table(variable)  # Frecuencia absoluta
+  percent <- prop.table(freq) * 100  # Porcentaje
+  return(data.frame(Pregunta = pregunta, Respuesta = names(freq), 
+                    Frecuencia = as.numeric(freq), 
+                    Porcentaje = round(as.numeric(percent), 2)))
+}
+
+# Crear tablas para cada pregunta
+freq_X108<- calc_freq(DATA_MU$X108, "X108")
+freq_X109<- calc_freq(DATA_MU$X109, "X109")
+
+
+# Combinar todas las tablas en un solo data frame
+freq_table <- bind_rows(freq_X108, freq_X109)
+
+# Unir la tabla con el diccionario de preguntas para agregar los enunciados completos
+freq_table <- left_join(freq_table, dictionary1, by = c("Pregunta" = "ColumnName"))
+
+# Reorganizar columnas para mejor visualización
+freq_table <- freq_table %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje) %>%
+  arrange(Pregunta, Respuesta)  # Ordenar por pregunta y respuesta
+
+# Cambiar la tabla para que la descripción esté encima de cada pregunta
+freq_table_X108X109<- freq_table %>%
+  group_by(Pregunta) %>%
+  mutate(Description = ifelse(row_number() == 1, Description, NA)) %>%
+  ungroup() %>%
+  select(Pregunta, Description, Respuesta, Frecuencia, Porcentaje)
+
+# Mostrar la tabla con la descripción encima de cada pregunta
+kable(freq_table_X108X109)
+```
+
+Ninguna granja usa pediluvios entre naves.

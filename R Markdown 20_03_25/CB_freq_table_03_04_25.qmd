@@ -1,0 +1,120 @@
+---
+title: "Tables descriptive CB 03_04_2025"
+author: "Paula Rebollo"
+format: html
+editor: visual
+---
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+
+data_allvars_03_04_2025 <- read.csv("data_allvars_03_04_2025.csv", 
+                                      sep = ";", header = TRUE)
+
+# Verificar las primeras filas del dataset
+head(data_allvars_03_04_2025)
+
+
+# Verificar las primeras filas del dataset
+head(data_allvars_03_04_2025)
+
+# Filtrar el dataset para solo incluir las granjas con Ind_type == "CB"
+filtered_data <- subset(data_allvars_03_04_2025.csv, Ind_type == "CB")
+
+# Calcular las frecuencias para cada columna del dataset filtrado
+freq_table <- data.frame() # Inicializar un data frame vacío para guardar los resultados
+
+# Iterar sobre cada columna del dataset filtrado
+for(col in names(filtered_data)) {
+  if(is.factor(filtered_data[[col]]) | is.character(filtered_data[[col]])) {
+    # Calcular las frecuencias para variables categóricas
+    freq <- table(filtered_data[[col]]) # Contar las frecuencias de cada valor
+    total <- sum(freq) # Sumar las frecuencias para obtener el total de observaciones
+
+    # Crear una tabla con el nombre de la variable, número de granjas y porcentaje
+    temp_df <- data.frame(
+      Variable = col,
+      Response = names(freq),
+      N = as.integer(freq),
+      Percent = round(100 * as.numeric(freq) / total, 2)
+    )
+    
+    # Añadir los resultados a la tabla final
+    freq_table <- rbind(freq_table, temp_df)
+  }
+}
+
+# Ver los resultados
+print(freq_table)
+
+
+```
+
+```{r}
+# Filtrar el dataset para solo incluir las granjas con Ind_type == "CR"
+filtered_data <- subset(data_allvars_03_04_2025, Ind_type == "CR")
+
+# Calcular las frecuencias para cada columna del dataset filtrado
+freq_table <- data.frame() # Inicializar un data frame vacío para guardar los resultados
+
+# Iterar sobre cada columna del dataset filtrado
+for(col in names(filtered_data)) {
+  if(is.factor(filtered_data[[col]]) | is.character(filtered_data[[col]])) {
+    # Calcular las frecuencias para variables categóricas
+    freq <- table(filtered_data[[col]]) # Contar las frecuencias de cada valor
+    total <- sum(freq) # Sumar las frecuencias para obtener el total de observaciones
+
+    # Crear una tabla con el nombre de la variable, número de granjas y porcentaje
+    temp_df <- data.frame(
+      Variable = col,
+      Response = names(freq),
+      N = as.integer(freq),
+      Percent = round(100 * as.numeric(freq) / total, 2)
+    )
+    
+    # Añadir los resultados a la tabla final
+    freq_table <- rbind(freq_table, temp_df)
+  }
+}
+
+# Ver los resultados
+print(freq_table)
+
+
+```
+
+```{r}
+
+# Filtrar el dataset para solo incluir las granjas con Ind_type == "IW"
+filtered_data <- subset(data_allvars_03_04_2025, Ind_type == "IW")
+
+# Calcular las frecuencias para cada columna del dataset filtrado
+freq_table <- data.frame() # Inicializar un data frame vacío para guardar los resultados
+
+# Iterar sobre cada columna del dataset filtrado
+for(col in names(filtered_data)) {
+  if(is.factor(filtered_data[[col]]) | is.character(filtered_data[[col]])) {
+    # Calcular las frecuencias para variables categóricas
+    freq <- table(filtered_data[[col]]) # Contar las frecuencias de cada valor
+    total <- sum(freq) # Sumar las frecuencias para obtener el total de observaciones
+
+    # Crear una tabla con el nombre de la variable, número de granjas y porcentaje
+    temp_df <- data.frame(
+      Variable = col,
+      Response = names(freq),
+      N = as.integer(freq),
+      Percent = round(100 * as.numeric(freq) / total, 2)
+    )
+    
+    # Añadir los resultados a la tabla final
+    freq_table <- rbind(freq_table, temp_df)
+  }
+}
+
+# Ver los resultados
+print(freq_table)
+
+
+```
